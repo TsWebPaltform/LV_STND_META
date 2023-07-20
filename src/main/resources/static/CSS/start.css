@@ -1,0 +1,25 @@
+﻿body {
+    padding: 0px;
+    margin: 0px;
+    overflow-x:hidden;
+    transform-origin: left top;
+}
+
+#contents {
+    width: var(--contents-width);
+    background-color: var(--contents-background-color);
+}
+
+#lv_main, #overlay {
+    top: var(--menu-top-height);
+    border: none;
+    box-sizing: border-box;
+    width: var(--contents-width);
+    position: fixed;
+}
+
+#overlay {
+    background: #000;
+    opacity: 0.1;
+}
+

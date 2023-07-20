@@ -1,0 +1,12 @@
+﻿:root {
+    --contents-width: 1920px;
+    --contents-background-color: "#f9f9f9";
+    --menu-top-height: 60px;
+    --menu-left-width: 300px;
+}
+
+ul {
+    list-style:none;
+    padding:0px;
+    margin:0px;
+}

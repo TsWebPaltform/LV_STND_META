@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1920">
+    <title>Zalesia</title>
+
+    <link rel="stylesheet" type="text/css" th:href="@{CSS}">
+    <link rel="stylesheet" type="text/css" th:href="@{CSS}">
+    <link rel="stylesheet" type="text/css" th:href="@{CSS}">
+    <link rel="stylesheet" type="text/css" th:href="@{CSS}">
+
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+
+    <script>
+        // 0421 hamwonjin 메뉴, 게시판, 주요뉴스 팝업 조회
+        $(document).ready(function () {
+
+        });
+
+        /**
+         *  메뉴/게시판/주요뉴스를 조회
+        */
+        function getSearchData(){
+
+            var html = "";
+            var aData = {
+                searchVal : $("#popSearch_box").val() ? $("#popSearch_box").val():$('#search_box').val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/api/main/getPopupSearchList",
+                data: aData
+            }).done(function (data) {
+
+                let searchData = data.data;
+                let htmlMenu="", htmlBbs="", htmlNews="";
+                let cntMenu=0, cntBbs=0, cntNews=0;
+
+                $.each( searchData, function(){
+
+                   if( this.GUBUN == 'MENU' ){
+                         htmlMenu += "<li>";
+                         htmlMenu += "<a class='link_tag' type='Menu' data-id='" + this.BOARD_ID + "' board_category='"+this.BOARD_CATEGORY+"'>" + this.TITLE + "</a>";
+                         htmlMenu += "</li>";
+                         cntMenu++;
+                    }else if( this.GUBUN == 'BBS' ){
+
+                        htmlBbs+="<li>";
+                        htmlBbs+=" <span class=\"badge\">"+this.BOARD_CATEGORY_NM+"</span>";
+                        // 실제로 Faq 가 아닌경우도 이렇게 넘기면 OK.
+                        htmlBbs+=" <a class='link_tag' type='Faq' data-id='"+this.BOARD_ID+"' board_category='"+this.BOARD_CATEGORY+"'>"+this.TITLE+"</a>";
+                        htmlBbs+=" <span class=\"date\">"+this.STR_UPDATE_DATE+"</span>";
+                        htmlBbs+="</li>";
+                        cntBbs++;
+
+                    }else if( this.GUBUN == 'NEWS' ){
+                        htmlNews+="<li>";
+                        htmlNews+=" <a href='"+ this.URL +"' target='_blank'>"+this.TITLE+"</a>";
+                        if(this.STR_UPDATE_DATE){
+                            htmlNews+=" <span class=\"date\">"+this.STR_UPDATE_DATE+"</span>";
+                        }
+                        htmlNews+="</li>";
+                        cntNews++;
+
+                    }
+
+                })
+                $("#searchMENU").html(htmlMenu);
+                $("#searchBBS").html(htmlBbs);
+                $("#searchNEWS").html(htmlNews);
+                $("#mainMSearchCnt").html( "("+cntMenu+")" )
+                $("#mainBSearchCnt").html( "("+cntBbs+")" )
+                $("#mainNSearchCnt").html( "("+cntNews+")" )
+
+
+                <!-- 검색어가 popSearch_box에 입력된 경우에만 동작합니다. popSearch_box에 입력된 값이 없는 경우에는 search_box의 값을 사용하도록 되어 있습니다. 그러나, search_box에 값이 없는 경우에도 예외처리를 해주었습니다. -->
+                var searchVal = $("#popSearch_box").val() || $('#search_box').val();
+
+                $("#mainSearchText").text("'" + searchVal + "'");
+
+
+
+                $("#mainTotalCnt").html(""+searchData.length+"건")
+
+
+
+                if ($("#popSearch_box").val() === "" || $("#popSearch_box").val() === null) {
+                $("#popSearch_box").val($("#search_box").val());
+                }
+
+            }).fail(function (xhr, status, errorThrown) {
+                alert('시스템 에러 a메인 관리자에게 문의하세요.');
+                console.log(xhr);
+                console.log(status);
+                console.log(errorThrown);
+            }).always(function (xhr, status) {
+            });
+        }
+
+
+        const mainMoreButton = document.getElementById("mainMore");
+
+        mainMoreButton.addEventListener("click", function() {
+          console.log("더 보기 버튼이 클릭되었습니다.");
+        });
+    </script>
+
+</head>
+
+<body>
+
+    <div class="main_wrapper">
+
+        <!--header_wrap-->
+        <header class="header_wrap">
+            <div class="header_inner">
+                <h1 class="header_logo">
+                    <a href="" class="btn_header"><img th:src="@{/images/logo.png}" alt="Zalesia"></a>
+                </h1>
+
+                <div class="header_top">
+                   <!-- <button type="button" class="btn_top admin">
+                        <img src="../../../shared/images/common/icon_header_admin.png" alt="관리자">
+                    </button>
+                    <button type="button" class="btn_top alarm">
+                        <img src="../../../shared/images/common/icon_header_alarm.png" alt="알람">
+                    </button>
+                    <button type="button" class="btn_top smile">
+                        <img src="../../../shared/images/common/icon_header_smile.png" alt="스마일">
+                    </button>  -->
+                    <button type="button" class="btn_top logout">
+                        <img th:src="@{/images/icon_header_logout.png}" alt="로그아웃">
+                    </button>
+                </div>
+
+            </div>
+        </header>
+
+        <!--//header__wrap-->
+
+        <div class="main_contents">
+
+            <div class="main_visual">
+                <img th:src="@{/images/visual_img.jpg}" class="visual_img" alt="">
+                <div class="main_visual_inner">
+                    <div class="main_swiper">
+                        <div class="swiper visualSwiper">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="text_box">
+                                        <div class="title">‘지속 가능한 미래’를 위해 우리가 만드는 더나은 세상! </div>
+                                        <div class="text">
+                                            ESG는 환경(Environmental), 사회(Social), 지배구조(Governance)의 영문 첫 글자를 조합한 단어로 기업
+                                            경영에서<br>
+                                            지속가능성을 달성하기 위한 3가지 핵심 요소입니다.<br>
+                                            전 세계가 주목하는 ESG, 잘레시아도 시대에 발맞춰 ESG경영 역량을 강화합니다.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="text_box">
+                                        <div class="title">‘함께 하는 가치’ ESG 경영 실천 </div>
+                                        <div class="text">
+                                            ESG 경영은 지속 가능한 발전, 후대를 위한 기업의 공존 방향성으로 하나의 경영 전략, 트렌드 입니다.<br>
+                                            기업은 ESG 경영을 통해 기업의 긍정적인 이미지와 명성의 향상을 가져올 수 있고<br>
+                                            장기적으로 회사의 경쟁력과 성과에 긍정적인 영향을 미칩니다.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper_option">
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-pagination"></div>
+                                <div class="swiper-button-next"></div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="main_search_wrap">
+                        <div class="main_search">
+                            <input id="search_box" type="text" class="input" placeholder="검색어를 입력하세요.">
+                        </div>
+                            <ul class="keyword_list">
+                                <li><a href="javascript:return false;" id="keyword_data1" class="btn_keyword"></a></li>
+                                <li><a href="javascript:return false;" id="keyword_data2" class="btn_keyword"></a></li>
+                                <li><a href="javascript:return false;" id="keyword_data3" class="btn_keyword"></a></li>
+                                <li><a href="javascript:return false;" id="keyword_data4" class="btn_keyword"></a></li>
+                                <li><a href="javascript:return false;" id="keyword_data5" class="btn_keyword"></a></li>
+
+                            </ul>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="main_card_wrap">
+                <!--esg정보-->
+                <div class="main_card col01">
+                    <h2 class="main_title">ESG정보</h2>
+                    <a href="" id="esg_info_data25" class="btn_more">more</a>
+
+                    <!--swiper-->
+                    <div class="swiper defaultSwiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <ul class="esg_info">
+                                    <!--환경-->
+                                    <li>
+                                        <a id="esg_info_data4" class="esg_box_e">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Environmental</em>
+                                                    <span>GHG</span>
+                                                </div>
+                                                <span class="unit">( KtCO2eq )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data1" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data2" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data3" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="esg_info_data8" class="esg_box_e">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Environmental</em>
+                                                    <span>에너지사용량</span>
+                                                </div>
+                                                <span class="unit">( GWh )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data5" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data6" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data7" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="esg_info_data12" class="esg_box_e">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Environmental</em>
+                                                    <span>물사용량</span>
+                                                </div>
+                                                <span class="unit">( KTon )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data9" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data10" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data11" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="swiper-slide">
+                                <ul class="esg_info">
+                                    <!--환경-->
+                                    <li>
+                                        <a id="esg_info_data16" class="esg_box_e">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Environmental</em>
+                                                    <span>폐기물배출량</span>
+                                                </div>
+                                                <span class="unit">( KTon )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data13" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data14" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data15" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <!--사회-->
+                                    <li>
+                                        <a id="esg_info_data20" class="esg_box_s">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Social</em>
+                                                    <span>신규채용인원</span>
+                                                </div>
+                                                <span class="unit">( 명 )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data17" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data18" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data19" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="esg_info_data24" class="esg_box_s">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Social</em>
+                                                    <span>퇴직률</span>
+                                                </div>
+                                                <span class="unit">( % )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data21" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data22" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data23" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="swiper-slide">
+                                <ul class="esg_info">
+                                    <li>
+                                        <a id="esg_info_data29" class="esg_box_s">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Social</em>
+                                                    <span>사고발생현황</span>
+                                                </div>
+                                                <span class="unit">( 건 )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data26" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data27" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data28" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="esg_info_data33" class="esg_box_s">
+                                            <div class="title">
+                                                <div class="top_txt">
+                                                    <em>Social</em>
+                                                    <span>공헌금액</span>
+                                                </div>
+                                                <span class="unit">( 억원 )</span>
+                                            </div>
+                                            <div class="esg_info_box">
+                                                <div id="esg_info_data30" class="num"></div>
+                                                <div class="rate_text">
+                                                    <div>
+                                                        <span class="text">달성률</span>
+                                                        <span id="esg_info_data31" class="ratio icon_up"></span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text">전년비</span>
+                                                        <span id="esg_info_data32" class="ratio icon_down"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="swiper_option">
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    </div>
+                    <!--swiper-->
+
+                </div>
+                <!--//esg정보-->
+
+                <!--경영현황-->
+                <div class="main_card col02">
+                    <h2 class="main_title">경영현황</h2>
+                    <span class="base_date" id="business_data7">2023.06 기준</span>
+                    <div class="swiper defaultSwiper business_wrap">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <ul class="business_list">
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business01.png" alt="">
+                                            <span>매출액</span>
+                                            <em id="business_data1"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business02.png" alt="">
+                                            <span>영업이익</span>
+                                            <em id="business_data2"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business03.png" alt="">
+                                            <span>집약도</span>
+                                            <em id="business_data3"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business04.png" alt="">
+                                            <span>판매수익</span>
+                                            <em id="business_data4"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business05.png" alt="">
+                                            <span>임직원수</span>
+                                            <em id="business_data5"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business06.png" alt="">
+                                            <span>계열사수</span>
+                                            <em id="business_data6"></em>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!--
+                            <div class="swiper-slide">
+                                <ul class="business_list">
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business01.png" alt="">
+                                            <span>매출액</span>
+                                            <em id="business_data8"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business02.png" alt="">
+                                            <span>영업이익</span>
+                                            <em id="business_data9"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business03.png" alt="">
+                                            <span>배출권수익</span>
+                                            <em id="business_data10"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business04.png" alt="">
+                                            <span>임직원수</span>
+                                            <em id="business_data11"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business05.png" alt="">
+                                            <span>계열사수</span>
+                                            <em id="business_data12"></em>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="business_box">
+                                            <img src="../../../shared/images/main/icon_business06.png" alt="">
+                                            <span>집약도</span>
+                                            <em id="business_data13"></em>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            -->
+                        </div>
+                        <div class="swiper_option" style="height: 0">
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <!--//경영현황-->
+
+                <div class=" col03">
+                    <!--esg등급-->
+                    <div class="main_card">
+                        <h2 class="main_title">ESG등급</h2>
+                        <a href="" id="rating_data6" class="btn_more">more</a>
+                        <div class="rating_wrap">
+                            <div class="circle_box">
+                                <div class="circle_inner">
+                                    <div id="rating_data1" class="rating_txt"></div>
+                                </div>
+                            </div>
+                            <ul class="rating_list">
+                                <li>
+                                    <span>Environmental</span>
+                                    <em id="rating_data2"></em>
+                                </li>
+                                <li>
+                                    <span>Social</span>
+                                    <em id="rating_data3"></em>
+                                </li>
+                                <li>
+                                    <span>Governance</span>
+                                    <em id="rating_data4"></em>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="rating_data5" class="rating_info"></div>
+                    </div>
+                    <!--//esg등급-->
+                    <!--notice-->
+                    <div class="main_card">
+                        <h2 class="main_title">Notice</h2>
+                        <a href="#" class="btn_more link_tag" type="Notice" data-id="board10">more</a>
+                        <ul id="main_list_notice" class="main_list_notice">
+                            <!--
+                            <li>
+                                <a id="Notice1" href="">
+                                    <div id="Notice1_nm" class="text">
+                                    </div>
+                                    <div id="Notice1_day" class="date"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="Notice2" href="">
+                                    <div id="Notice2_nm" class="text">
+                                    </div>
+                                    <div id="Notice2_day" class="date"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="Notice3" href="">
+                                    <div id="Notice3_nm" class="text">
+                                    </div>
+                                    <div id="Notice3_day" class="date"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="Notice4" href="">
+                                    <div id="Notice4_nm" class="text">
+                                    </div>
+                                    <div id="Notice4_day" class="date"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="Notice5" href="">
+                                    <div id="Notice5_nm" class="text">
+                                    </div>
+                                    <div id="Notice5_day" class="date"></div>
+                                </a>
+                            </li>
+                            -->
+                        </ul>
+                    </div>
+                    <!--notice-->
+                </div>
+
+                <div class="col04">
+                    <!--faq-->
+                    <div class="main_card">
+                        <h2 class="main_title">FAQ</h2>
+                        <a href="#" class="btn_more link_tag" type="Faq" data-id="board17">more</a>
+                        <ul id="main_list_faq" class="main_list_faq">
+                        </ul>
+                    </div>
+                    <!--//faq-->
+                    <!--Q-step-->
+                    <div class="main_card">
+                        <h2 class="main_title">Q-Step</h2>
+                        <ul class="main_list_qstep">
+                            <li>
+                                <a href="#" id="qstep_dashboard_link" class="esg_box_e link_tag" data-id="LvDemo" type="info">
+                                    <dl class="qstep_dashboard">
+                                        <dt>Dashboard</dt>
+                                        <dd class="ellipsis1">ESG 경영정보를 조회해보세요. </dd>
+                                    </dl>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <dl class="qstep_data">
+                                        <dt>Data</dt>
+                                        <dd class="ellipsis1">대시보드 Data Upload로 이동합니다. </dd>
+                                    </dl>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <dl class="qstep_trend">
+                                        <dt>Trend</dt>
+                                        <dd class="ellipsis1">ESG 동향정보를 확인해보세요.</dd>
+                                    </dl>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="link_tag" type="Notice" data-id="board10">
+                                    <dl class="qstep_bbs">
+                                        <dt>BBS</dt>
+                                        <dd class="ellipsis1">공지 및 자료를 찾아보세요. </dd>
+                                    </dl>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="">
+                                    <dl class="qstep_site">
+                                        <dt>Site Link</dt>
+                                        <dd class="ellipsis1">KRX 포탈로 이동합니다.</dd>
+                                    </dl>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!--//Q-step-->
+                </div>
+            </div>
+            <!-- 검색 팝업 -->
+            <!--팝업 오픈시 modalPop.open('#searchPop') 적용-->
+            <div class="popup_wrap" id="searchPop">
+                <div class="popup">
+                    <div class="pop_header">
+                        <h2 class="pop_title">검색</h2>
+                        <button type="button" class="btn btn_close" onclick="modalPop.close(this)">닫기</button>
+                    </div>
+                    <div class="pop_contents search_pop_h">
+                        <!--검색어 입력영역-->
+                        <div class="pop_search_wrap">
+                            <div class="main_search">
+                                <input id="popSearch_box" type="text" class="input" placeholder="검색어를 입력하세요.">
+                            </div>
+                            <div class="search_result">
+                                <strong class="keyword" id="mainSearchText"></strong>에 대한 <strong class="length" id="mainTotalCnt"></strong>의 검색결과가 있습니다.
+                            </div>
+                        </div>
+                        <!--//검색어 입력영역-->
+
+                        <!--검색결과 목록-->
+                        <div class="result_group">
+                            <!--메뉴-->
+                            <div class="result_item">
+                                <h3 class="result_item_title">메뉴 <span id="mainMSearchCnt">(2)</span></h3>
+                                <ul class="list_dot" id="searchMENU">
+
+                                </ul>
+                            </div>
+                            <!--메뉴-->
+                            <div class="result_item">
+                                <h3 class="result_item_title">게시판 <span id="mainBSearchCnt">(10)</span></h3>
+                                <ul class="list_dot" id="searchBBS">
+
+                                </ul>
+                            </div>
+
+                            <!--주요뉴스-->
+                            <div class="result_item">
+                                <h3 class="result_item_title">주요뉴스 <span id="mainNSearchCnt">(5)</span></h3>
+                                <ul class="list_dot"  id="searchNEWS">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <!--//검색결과 목록-->
+
+                    </div>
+                </div>
+            </div><!--//popup_wrap-->
+        </div><!--//main_contents-->
+
+    </div><!--//wrapper-->
+
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+
+    <script th:src="@{Scripts}"></script>
+    <script th:src="@{Scripts}"></script>
+
+</body>
+
+</html>

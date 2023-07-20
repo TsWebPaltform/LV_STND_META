@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Success</title>
+</head>
+<body>
+<h1>Success Page</h1>
+
+<h2>Menu Information</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Menu Code</th>
+        <th>Menu Name</th>
+        <th>Level 1 Name</th>
+        <th>Level 2 Name</th>
+        <th>Level 3 Name</th>
+        <th>Level 4 Name</th>
+        <th>Level 5 Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 반복문을 통해 메뉴 정보를 출력 -->
+    <tr th:each="menu : ${menuList}">
+        <td th:text="${menu.menuCd}"></td>
+        <td th:text="${menu.menuLangNm}"></td>
+        <td th:text="${menu.lvl1Nm}"></td>
+        <td th:text="${menu.lvl2Nm}"></td>
+        <td th:text="${menu.lvl3Nm}"></td>
+        <td th:text="${menu.lvl4Nm}"></td>
+        <td th:text="${menu.lvl5Nm}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

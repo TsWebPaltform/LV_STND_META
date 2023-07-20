@@ -1,0 +1,109 @@
+﻿
+#menu-top {
+    width: 100%;
+    background: linear-gradient(to Right, #ff3129, #ff5634, #ffb350);
+    height: var(--menu-top-height);
+}
+#menu-top-contents {
+    width: 100%;
+    padding: 0px 20px 20px 20px;
+    display: flex;
+}
+
+#menu-left {
+    position: fixed;
+    box-sizing: border-box;
+    background: #fff;
+    overflow-y: auto;
+    width: var(--menu-left-width);
+    top: var(--menu-top-height);
+    border-right: 1px solid #d9d9d9;
+    padding: 30px 0px;
+    z-index:100;
+}
+
+#left-menu-toggle {
+    width: 20px;
+    height: var(--menu-top-height);
+    background-image: url(../images/header_ico_menu.png);
+    background-repeat: no-repeat;
+    background-position-y: center;
+}
+
+#logo {
+    width: 140px;
+    height: var(--menu-top-height);
+    margin-left: 20px;
+    background-image: url(../images/logo.png);
+    background-repeat: no-repeat;
+    background-position-y: center;
+}
+
+.btn {
+    cursor:pointer;
+}
+
+#menu-top-div {
+    display: flex;
+    margin-left: 50px;
+}
+.menu-top-item {
+    width: max-content;
+    padding: 20px 50px 0px 0px;
+    font-size: 18px;
+    line-height: 18px;
+    font-weight: 400;
+    color: #fff;
+}
+    .menu-top-item.active, .menu-top-item:hover {
+        text-decoration-line: underline;
+        text-decoration-style: solid;
+        text-underline-offset: 8px;
+        text-decoration-thickness: 2px;
+    }
+.menu-ul {
+    overflow:hidden;
+}
+.lv3-ul {
+   /* margin-top:10px;*/
+}
+.menu-left-item.lv1>div {
+    display: block;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 22px;
+    color: #141414;
+    font-weight: 700;
+}
+
+.menu-left-item.lv2 {
+    padding: 12px 10px;
+    line-height: 16px;
+    font-weight: 400;
+    color: #141414;
+    font-size: 16px;
+    text-align: left;
+    text-indent: 30px;
+/*    height:30px*/
+}
+
+    .menu-left-item.lv2 > div {
+        margin-bottom:10px;
+    }
+    .menu-left-item.lv3 {
+    text-indent: 80px;
+    line-height:30px;
+}
+
+.lv2-icon {
+    background-image: url(../images/snb_icon_off.png);
+    width: 13px;
+    height: 15px;
+    display: inline-block;
+    margin-right: 10px;
+    /*margin-top: 10px;*/
+}
+
+.menu-left-item.lv2.active > .lv2-icon {
+    background-image: url(../images/snb_icon_on.png);
+}
