@@ -4,6 +4,7 @@
     background: linear-gradient(to Right, #ff3129, #ff5634, #ffb350);
     height: var(--menu-top-height);
 }
+
 #menu-top-contents {
     width: 100%;
     padding: 0px 20px 20px 20px;
@@ -19,7 +20,7 @@
     top: var(--menu-top-height);
     border-right: 1px solid #d9d9d9;
     padding: 30px 0px;
-    z-index:100;
+    z-index: 100;
 }
 
 #left-menu-toggle {
@@ -40,13 +41,20 @@
 }
 
 .btn {
-    cursor:pointer;
+    cursor: pointer;
 }
 
 #menu-top-div {
     display: flex;
     margin-left: 50px;
 }
+
+#menu-top-right-div {
+    display: flex;
+    margin: auto;
+    margin-right: 60px;
+}
+
 .menu-top-item {
     width: max-content;
     padding: 20px 50px 0px 0px;
@@ -55,19 +63,47 @@
     font-weight: 400;
     color: #fff;
 }
+
     .menu-top-item.active, .menu-top-item:hover {
         text-decoration-line: underline;
         text-decoration-style: solid;
         text-underline-offset: 8px;
         text-decoration-thickness: 2px;
     }
+
+.top-icon {
+    width: 20px;
+    height: 20px;
+    /*border: 1px solid gray;*/
+    margin-left: 24px;
+    background-repeat: no-repeat;
+}
+
+#top-icon-back {
+    background-image: url(../images/header_ico_prev.png);
+}
+
+#top-icon-bookmark {
+    background-image: url(../images/header_ico_bookmark.png);
+}
+
+#top-icon-info {
+    background-image: url(../images/header_ico_info.png);
+}
+
+#top-icon-logout {
+    background-image: url(../images/header_ico_logout.png);
+}
+
 .menu-ul {
-    overflow:hidden;
+    overflow: hidden;
 }
+
 .lv3-ul {
-   /* margin-top:10px;*/
+    /* margin-top:10px;*/
 }
-.menu-left-item.lv1>div {
+
+.menu-left-item.lv1 > div {
     display: block;
     text-align: center;
     margin-bottom: 30px;
@@ -77,26 +113,53 @@
 }
 
 .menu-left-item.lv2 {
-    padding: 12px 10px;
+    padding: 10px 20px;
     line-height: 16px;
     font-weight: 400;
     color: #141414;
     font-size: 16px;
     text-align: left;
-    text-indent: 30px;
-/*    height:30px*/
+    /*text-indent: 30px;*/
+    /*    height:30px*/
 }
+
+    .menu-left-item.lv2.active {
+        background-color: #fff2c9;
+    }
 
     .menu-left-item.lv2 > div {
-        margin-bottom:10px;
+        /* margin-bottom: 10px; */
+        line-height: 30px;
     }
-    .menu-left-item.lv3 {
-    text-indent: 80px;
-    line-height:30px;
+
+.menu-left-item.lv3 {
+    /*text-indent: 80px;*/
+    line-height: 24px;
+    padding: 5px 10px;
+    height: 24px;
+    margin-top: 10px;
 }
 
+    .menu-left-item.lv3.active {
+        background-color: #ffce66;
+        border-radius: 6px;
+    }
+
 .lv2-icon {
-    background-image: url(../images/snb_icon_off.png);
+    background-image: url(../images/icon_level2_arrow.png);
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    margin-top: 10px;
+    float: right;
+}
+
+.menu-left-item.lv2.active > div > .lv2-icon {
+    background-image: url(../images/icon_level2_arrow_on.png);
+}
+
+.lv3-icon {
+    background-image: url(../images/icon_level3.png);
     width: 13px;
     height: 15px;
     display: inline-block;
@@ -104,6 +167,6 @@
     /*margin-top: 10px;*/
 }
 
-.menu-left-item.lv2.active > .lv2-icon {
-    background-image: url(../images/snb_icon_on.png);
+.menu-left-item.lv3.active > div > .lv3-icon {
+    background-image: url(../images/icon_level3_on.png);
 }

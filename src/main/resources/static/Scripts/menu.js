@@ -33,7 +33,7 @@ function parseMenuData(menu) {
         menuObjs.push(menuObj);
 
         if (lv1_objs.length > 0 && lv1_objs[0]["LVL_2_CD"].length > 0) {
-            
+
             menuObj["SUB"] = [];
 
             var lv2_cds = distinctItem(lv1_objs, "LVL_2_CD");
@@ -44,7 +44,7 @@ function parseMenuData(menu) {
                     var menuObj2 = {
                         "LVL_2_CD": lv2_objs[0]["LVL_2_CD"]
                         , "LVL_2_NM": lv2_objs[0]["LVL_2_NM"]
-                        
+
                     };
 
                     menuObj.SUB.push(menuObj2);
@@ -61,7 +61,7 @@ function parseMenuData(menu) {
                                 var menuObj3 = {
                                     "LVL_3_CD": lv3_objs[0]["LVL_3_CD"]
                                     , "LVL_3_NM": lv3_objs[0]["LVL_3_NM"]
-                                    , "SCR_ID" : lv3_objs[0]["SCR_ID"]
+                                    , "SCR_ID": lv3_objs[0]["SCR_ID"]
                                 };
 
                                 menuObj2.SUB.push(menuObj3);
@@ -126,12 +126,12 @@ function setMenu(menuJson) {
                 obj2 = obj.SUB[i2];
 
                 if (obj2.SCR_ID != null) {
-                    html += "<li class='menu-left-item btn lv2'  cd='" + obj2.LVL_2_CD + "'  SCR-ID='" + obj2.SCR_ID + "'><div><span class='lv2-icon'></span>" + obj2.LVL_2_NM + "</div>";
+                    html += "<li class='menu-left-item btn lv2'  cd='" + obj2.LVL_2_CD + "'  SCR-ID='" + obj2.SCR_ID + "'><div>" + obj2.LVL_2_NM + "</div>";
                 }
                 else {
-                    html += "<li class='menu-left-item btn lv2'  cd='" + obj2.LVL_2_CD + "'><div><span class='lv2-icon'></span>" + obj2.LVL_2_NM + "</div>";
+                    html += "<li class='menu-left-item btn lv2'  cd='" + obj2.LVL_2_CD + "'><div>" + obj2.LVL_2_NM + "<span class='lv2-icon'></span></div>";
                 }
-               
+
 
                 if (obj2.SUB != null) {
                     html += "<ul class='lv3-ul menu-ul'>";
@@ -139,12 +139,12 @@ function setMenu(menuJson) {
                     for (var i3 = 0; i3 < obj2.SUB.length; i3++) {
                         obj3 = obj2.SUB[i3];
 
-   
+
                         if (obj3.SCR_ID != null) {
-                            html += "<li class='menu-left-item btn lv3'  cd='" + obj3.LVL_3_CD + "'  SCR-ID='" + obj3.SCR_ID + "'>" + obj3.LVL_3_NM;
+                            html += "<li class='menu-left-item btn lv3'  cd='" + obj3.LVL_3_CD + "'  SCR-ID='" + obj3.SCR_ID + "'><div><span class='lv3-icon'></span>" + obj3.LVL_3_NM + "</div>";
                         }
                         else {
-                            html += "<li class='menu-left-item btn lv3'  cd='" + obj3.LVL_3_CD + "'>" + obj3.LVL_3_NM;
+                            html += "<li class='menu-left-item btn lv3'  cd='" + obj3.LVL_3_CD + "'><div><span class='lv3-icon'></span>" + obj3.LVL_3_NM + "</div>";
                         }
 
 
@@ -181,6 +181,11 @@ function setMenu(menuJson) {
         var SCR_ID = $(this).attr("SCR-ID");
 
         if (SCR_ID != null) {
+            if ($(this).hasClass("lv3")) {
+                $(".menu-left-item.lv3.active").removeClass("active");
+                $(this).addClass("active");
+            }
+
             setLongviewEvent("MENU_OPEN", SCR_ID);
             leftMenuView(false);
         }
@@ -191,7 +196,7 @@ function setMenu(menuJson) {
         var SCR_ID = $(this).attr("SCR-ID");
         var old_ul = $(".menu-left-item.active").find("ul");
 
-        $(".menu-left-item.active").removeClass("active");
+        $(".menu-left-item.lv2.active").removeClass("active");
 
         $(this).addClass("active");
         if (SCR_ID != null) {
@@ -215,7 +220,7 @@ function setMenu(menuJson) {
             $(target_ul).css("height", 0);
 
             $(target_ul).stop().animate({ "height": h }, OPTION.menu.animate_time);
-
+            $(target_ul).css("height", "auto");
         }
         return false;
     })
@@ -238,11 +243,12 @@ function firstMenuClick() {
 }
 
 function topItemClick(target, viewflag) {
+
     $(".menu-top-item.active").removeClass("active");
     $(target).addClass("active");
 
-    $(".lv3-ul.menu-ul").css("height", 0);
-    $(".menu-left-item.lv2").removeClass("active");
+    //  $(".lv3-ul.menu-ul").css("height", 0);
+    //  $(".menu-left-item.lv2").removeClass("active");
 
     var cd = $(target).attr("cd");
     $(".menu-left-item.lv1").css("display", "none");
@@ -253,9 +259,81 @@ function topItemClick(target, viewflag) {
     console.log("selected : " + $(target).attr("cd"));
 
 }
-function setMenuActive() {
-    
+
+function setMenuActive(scr_id) {
+
+    var target = $(".menu-left-item[scr-id='" + scr_id + "']");
+
+    if (target != null) {
+        $(".menu-left-item").removeClass("active");
+
+        $(target).addClass("active");
+
+
+        if ($(target).hasClass("lv3")) {
+
+            var target_lv3_ul = $(target).closest(".lv3-ul");
+            if (target_lv3_ul != null) {
+
+                $(target_lv3_ul).css("height", "auto");
+            }
+
+            var target_lv2 = $(target).closest("li.lv2");
+
+            if (target_lv2 != null) {
+
+                $(target_lv2).addClass("active");
+
+                var target_lv1 = $(target).closest("li.lv1");
+                if (target_lv1 != null) {
+                    $(".menu-left-item.lv1").css("display", "none");
+                    $(".menu-top-item").removeClass("active");
+                    $(target_lv1).css("display", "block");
+                    var top_cd = $(target_lv1).attr("cd");
+                    var top_item = $(".menu-top-item[cd='" + top_cd + "']");
+
+                    if (top_item != null) {
+                        $(top_item).addClass("active");
+
+                    }
+                }
+            }
+
+        }
+        else if ($(target).hasClass("lv2")) {
+
+            var target_lv1 = $(target).closest("li.lv1");
+            if (target_lv1 != null) {
+                $(".menu-left-item.lv1").css("display", "none");
+                $(".menu-top-item").removeClass("active");
+                $(target_lv1).css("display", "block");
+                var top_cd = $(target_lv1).attr("cd");
+                var top_item = $(".menu-top-item[cd='" + top_cd + "']");
+
+                if (top_item != null) {
+                    $(top_item).addClass("active");
+
+                }
+            }
+        }
+        else {
+
+            $(".menu-left-item.lv1").css("display", "none");
+            $(".menu-top-item").removeClass("active");
+            $(target).css("display", "block");
+            var top_cd = $(target).attr("cd");
+            var top_item = $(".menu-top-item[cd='" + top_cd + "']");
+
+            if (top_item != null) {
+                $(top_item).addClass("active");
+
+            }
+        }
+
+    }
+
 }
+
 function distinctItem(data, field) {
 
     var lookup = {};

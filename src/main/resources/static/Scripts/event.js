@@ -20,6 +20,22 @@ function setEvent() {
                 leftMenuView(false);
             }
         }
+
+        else {
+
+            if ($(e.target).hasClass("top-icon")) {
+
+                var keyword = $(e.target).attr("keyword");
+
+                if (keyword != null) {
+                    setLongviewEvent(keyword);
+                }
+
+            }
+        }
+
+        
+
     })
 
 }

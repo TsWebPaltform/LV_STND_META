@@ -17,6 +17,11 @@
         <div class="login_form">
             <form id="loginForm" th:action="@{/login}" method="post">
                 <div class="item">
+                    <select id="compCd" th:field="*{compList}" class="login_select">
+                        <option th:each="compList : ${compList}" th:value="${compList.mstCd}" th:text="${compList.mstNm}"></option>
+                    </select>
+                </div>
+                <div class="item">
                     <input type="text" id="empNo" name="empNo" class="login_input id" placeholder="ID" title="ID"
                            autocomplete='off'>
                 </div>

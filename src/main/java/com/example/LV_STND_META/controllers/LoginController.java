@@ -1,9 +1,11 @@
 package com.example.LV_STND_META.controllers;
 
 import com.example.LV_STND_META.UserLoginRequest;
+import com.example.LV_STND_META.dto.CommonDto;
 import com.example.LV_STND_META.entity.User;
 import com.example.LV_STND_META.entity.UserRole;
 import com.example.LV_STND_META.mappers.MenuMapper;
+import com.example.LV_STND_META.mappers.MyMapper;
 import com.example.LV_STND_META.repository.UserRepository;
 import com.example.LV_STND_META.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class LoginController {
@@ -34,8 +35,15 @@ public class LoginController {
     @Autowired
     private MenuMapper menuMapper;
 
+    @Autowired
+    private MyMapper myMapper; // My_Mapper Autowired
+
     @GetMapping("/login")
-    public String showLoginForm() {
+    public String showLoginForm(Model model) {
+
+        List<CommonDto> compList = myMapper.getCompList();
+
+        model.addAttribute("compList", compList);
         return "login";
     }
 
@@ -53,12 +61,14 @@ public class LoginController {
     public ResponseEntity<String> processLoginForm(@RequestBody UserLoginRequest loginRequest, HttpSession session) {
         String empNo = loginRequest.getEmpNo();
         String password = loginRequest.getPassword();
+        String compCd = loginRequest.getCompCd();
 
         User user = userRepository.findByEmpNo(empNo);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
             // 로그인 성공
             session.setAttribute("user", user);
+            session.setAttribute("compCd", compCd);
             return ResponseEntity.ok().body("/success");
         } else {
             // 로그인 실패
@@ -88,7 +98,6 @@ public class LoginController {
         }
         return false;
     }
-
 
 
 }

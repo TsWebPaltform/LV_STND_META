@@ -26,8 +26,9 @@ public class MenuRestController {
     public List<MenuDto> getMenuList(HttpSession session) {
         // 로그인한 사용자의 userId 가져오기
         User user = (User) session.getAttribute("user");
+
         String userId = user.getEmpNo();
-        String compCd = "DSF";
+        String compCd = (String) session.getAttribute("compCd");
         String sysCd = "EIS";
 
         return menuuMapper.selectMenu(userId, compCd, sysCd);

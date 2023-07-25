@@ -2,12 +2,18 @@ $(document).ready(function() {
     $('#loginForm').submit(function(e) {
         e.preventDefault(); // 폼 기본 동작 방지
 
+        // 선택한 회사 정보 가져오기
+        var selectedCompCd = $("#compCd").val();
+
+        // 사용자 입력값 가져오기
         var empNo = $('#empNo').val();
         var password = $('#password').val();
 
+
         var requestData = {
             empNo: empNo,
-            password: password
+            password: password,
+            compCd: selectedCompCd
         };
 
         $.ajax({

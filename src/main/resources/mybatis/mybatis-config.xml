@@ -11,6 +11,7 @@
     <mappers>
         <!-- 여기에 MenuMapper.xml 파일의 경로를 설정해주세요 -->
         <mapper resource="com/example/LV_STND_META/mappers/MenuMapper.xml" />
+        <mapper resource="com/example/LV_STND_META/mappers/MyMapper.xml" />
 
     </mappers>
 </configuration>

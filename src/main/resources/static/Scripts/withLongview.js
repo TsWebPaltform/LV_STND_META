@@ -9,6 +9,25 @@
 //즐겨찾기: ARCPLAN.acSendClickEvent("COM_CMN1", 64, 1, 1);
 //카드 즐겨찾기: ARCPLAN.acSendClickEvent("COM_CMN1", 65, 1, 1);
 //카드 로테이션: ARCPLAN.arcclient.acSendInputEvent("COM_PORTLET", 65, "오픈할 페이지");
+var top_ico =
+    [
+        {
+            "id": "top-icon-back",
+            "lv_action": "BACK"
+        },
+        {
+            "id": "top-icon-bookmark",
+            "lv_action": "BOOKMARK"
+        },
+        {
+            "id": "top-icon-info",
+            "lv_action": "INFO"
+        },
+        {
+            "id": "top-icon-logout",
+            "lv_action": ""
+        }
+    ]
 
 const lv_action = {
     "MENU_OPEN": { //화면 오픈: ARCPLAN.arcclient.acSendInputEvent("COM_CMN1", 3, "화면명");
@@ -51,12 +70,12 @@ const lv_action = {
         "pgm": "COM_CMN1",
         "obj": 63
     }
-    , "FAVORIT": {//즐겨찾기: ARCPLAN.acSendClickEvent("COM_CMN1", 64, 1, 1);
+    , "BOOKMARK": {//즐겨찾기: ARCPLAN.acSendClickEvent("COM_CMN1", 64, 1, 1);
         "action": "CLICK",
         "pgm": "COM_CMN1",
         "obj": 64
     }
-    , "CARD_FAV": {//카드 즐겨찾기: ARCPLAN.acSendClickEvent("COM_CMN1", 65, 1, 1);
+    , "CARD_BOOKMARK": {//카드 즐겨찾기: ARCPLAN.acSendClickEvent("COM_CMN1", 65, 1, 1);
         "action": "CLICK",
         "pgm": "COM_CMN1",
         "obj": 65
@@ -72,19 +91,47 @@ function setLongviewEvent(keyword, value) {
     var action = lv_action[keyword];
 
     if (action != null) {
-        try {
-            if (action.action == "CLICK") {
-                ARCPLAN.acSendClickEvent(action.pgm, action.obj, 1, 1);
+
+        if (action.action == "CLICK") {
+
+            $("#lv_main")[0].contentWindow.arcClickEvent(action.pgm, action.obj);
+        }
+        else if (action.action == "INPUT") {
+            if (value != null) {
+                $("#lv_main")[0].contentWindow.arcInputEvent(action.pgm, action.obj, value);
             }
-            else if (action.action == "INPUT") {
-                if (value != null) {
-                    ARCPLAN.arcclient.acSendInputEvent(action.pgm, action.obj, value);
+        }
+/*
+
+        var cnt = 0;
+        var timer = setInterval(function () {
+
+            try {
+                if (action.action == "CLICK") {
+
+                    $("#lv_main")[0].contentWindow.arcClickEvent(action.pgm, action.obj);
                 }
+                else if (action.action == "INPUT") {
+                    if (value != null) {
+                        $("#lv_main")[0].contentWindow.arcInputEvent(action.pgm, action.obj, value);
+                    }
+                }
+
+                clearInterval(timer);
+                timer = null;
             }
-        }
-        catch (e) {
-            alert(" keyword : " + keyword + " / value : " + value);
-        }
+            catch (e) {
+                console.log(" keyword : " + keyword + " / value : " + value);
+
+            }
+            if (cnt++ > 50) {
+                console.log(" timeover : " + keyword + " / value : " + value);
+                clearInterval(timer);
+                timer = null;
+            }
+
+        }, 100);
+        */
     }
 
 }

@@ -16,6 +16,8 @@
     html += "<div id='left-menu-toggle' class='btn'></div>";
     html += "<div id='logo'  class='btn'></div>";
     html += "<div id='menu-top-div'></div>";
+
+    html += "<div id='menu-top-right-div'></div>";
     html += "</div > ";
 
     $("#" + OPTION.menu.top.id).html(html);
@@ -28,6 +30,17 @@
     $("#" + OPTION.menu.left.id).html(html);
 
 
+    var html = "";
+
+    for (var ti = 0; ti < top_ico.length; ti++) {
+        html += "<div id='" + top_ico[ti].id + "' class='top-icon btn' keyword='" + top_ico[ti].lv_action +"'></div>";
+    }
+    //html += "<div id='top-icon-back' class='top-icon btn' keyword='BACK'></div>";
+    //html += "<div id='top-icon-bookmark' class='top-icon btn' keyword='BOOKMARK'></div>";
+    //html += "<div id='top-icon-info' class='top-icon btn'  keyword='INFO'></div>";
+    //html += "<div id='top-icon-logout' class='top-icon btn' keyword='LOGOUT'></div>";
+    $("#menu-top-right-div").html(html);
+
 
     ScreenResize();
 
@@ -37,6 +50,11 @@
 
 });
 
+function lv_ready() {
+
+    console.log("lv_ready");
+    firstMenuClick();
+}
 
 function getMenu() {
 
