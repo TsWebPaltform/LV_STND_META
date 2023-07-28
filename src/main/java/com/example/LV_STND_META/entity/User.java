@@ -4,8 +4,8 @@ package com.example.LV_STND_META.entity;
 import lombok.Data;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -14,9 +14,8 @@ import java.util.Date;
 @Table(name = "TB_SYS_USR_MNG")
 public class User{
 
-    @Id
-    @Column(name = "EMP_NO")
-    private String empNo;
+    @EmbeddedId
+    private UserKey userKey;
 
     @Column(name = "EMP_NM")
     private String empName;

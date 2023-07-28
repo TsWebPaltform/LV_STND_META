@@ -27,7 +27,7 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 // 로그인 실패 시 처리 로직
-                alert("아이디 패스워드를 확인하세요.")
+                alert("아이디 패스워드,회사정보를 확인하세요.")
             }
         });
     });

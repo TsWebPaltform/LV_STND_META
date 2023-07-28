@@ -17,8 +17,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -47,6 +49,14 @@ public class LoginController {
         return "login";
     }
 
+    @GetMapping("/change-password")
+    public String showChangePasswordForm() {
+        if (!isLoggedIn()) {
+            return "redirect:/login";
+        }
+        return "change-password";
+    }
+
     @GetMapping("/lv_main")
     public String showLv_mainForm() {
         return "lv_main";
@@ -63,9 +73,11 @@ public class LoginController {
         String password = loginRequest.getPassword();
         String compCd = loginRequest.getCompCd();
 
-        User user = userRepository.findByEmpNo(empNo);
+        User user = userRepository.findByUserKeyEmpNoAndUserKeyCompCd(empNo, compCd);
+
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+
             // 로그인 성공
             session.setAttribute("user", user);
             session.setAttribute("compCd", compCd);
@@ -75,6 +87,8 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+
+
 
 
     @GetMapping("/success")
@@ -99,5 +113,53 @@ public class LoginController {
         return false;
     }
 
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> processChangePasswordForm(@RequestParam("currentPassword") String currentPassword,
+                                                            @RequestParam("newPassword") String newPassword,
+                                                            @RequestParam("confirmNewPassword") String confirmNewPassword,
+                                                            HttpSession session) {
+
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+        String empNo = user.getUserKey().getEmpNo();
+        String compCd = user.getUserKey().getCompCd();
+
+        User fetchedUser = userRepository.findByUserKeyEmpNoAndUserKeyCompCd(empNo, compCd);
+
+        if (fetchedUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        // 현재 비밀번호가 맞는지 확인
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid current password");
+        }
+
+        // 새로운 비밀번호와 확인용 비밀번호가 일치하는지 확인
+        if (!newPassword.equals(confirmNewPassword)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("New passwords do not match");
+        }
+
+//        // 새로운 비밀번호가 강도를 만족하는지 확인 (예시로 비밀번호 길이를 8자 이상으로 설정)
+//        if (newPassword.length() < 8) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password must be at least 8 characters long");
+//        }
+
+        // 이전에 사용한 적 있는 비밀번호인지 확인 (비밀번호 변경 기록을 가지고 있을 경우 이를 활용)
+
+        // 새로운 비밀번호 저장
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/login").toUriString();
+        String message = "Password changed successfully. Please <a href=\"" + loginLink + "\">click here</a> to login.";
+
+        return ResponseEntity.ok().body(message);
+    }
 
 }

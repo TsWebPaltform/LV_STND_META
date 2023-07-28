@@ -2,9 +2,9 @@ package com.example.LV_STND_META.controllers;
 
 import com.example.LV_STND_META.dto.MenuDto;
 import com.example.LV_STND_META.entity.User;
+import com.example.LV_STND_META.entity.UserKey;
 import com.example.LV_STND_META.mappers.MenuuMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,6 @@ public class MenuController {
     private MenuuMapper menuuMapper;
 
     @GetMapping("/menus")
-    @PreAuthorize("isAuthenticated()")
     public String showMenuList(Model model, HttpSession session) {
         // 로그인한 사용자의 userId 가져오기
         User user = (User) session.getAttribute("user");
@@ -27,8 +26,9 @@ public class MenuController {
             return "redirect:/login"; // 로그인 페이지 경로를 적절히 변경해주세요.
         }
 
-        String userId = user.getEmpNo();
-        String compCd = (String) session.getAttribute("compCd");
+        UserKey userKey = user.getUserKey();
+        String userId = userKey.getEmpNo();
+        String compCd = userKey.getCompCd();
         String sysCd = "EIS";
 
         List<MenuDto> menuList = menuuMapper.selectMenu(userId, compCd, sysCd);

@@ -24,6 +24,10 @@ var top_ico =
             "lv_action": "INFO"
         },
         {
+            "id": "top-icon-pwch",
+            "lv_action": "PWCH"
+        },
+        {
             "id": "top-icon-logout",
             "lv_action": ""
         }
@@ -85,6 +89,9 @@ const lv_action = {
         "pgm": "COM_PORTLET",
         "obj": 65
     }
+    , "PWCH": {//INFO(도움말) : ARCPLAN.acSendClickEvent("COM_CMN1", 63, 1, 1);
+        "action": "WEB",
+    }
 }
 
 function setLongviewEvent(keyword, value) {
@@ -95,11 +102,18 @@ function setLongviewEvent(keyword, value) {
         if (action.action == "CLICK") {
 
             $("#lv_main")[0].contentWindow.arcClickEvent(action.pgm, action.obj);
+
         }
         else if (action.action == "INPUT") {
             if (value != null) {
                 $("#lv_main")[0].contentWindow.arcInputEvent(action.pgm, action.obj, value);
             }
+        }else if (action.action == "WEB") {
+
+            $("#top-icon-pwch").click(function() {
+                // 해당 코드는 jQuery를 사용하고 있으므로, jQuery를 로드한 HTML 페이지에서 사용 가능합니다.
+                window.location.href = "/change-password";
+            });
         }
 /*
 
