@@ -137,29 +137,43 @@ public class LoginController {
 
         // 현재 비밀번호가 맞는지 확인
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid current password");
+            String alertMessage = "현재 비밀번호가 올바르지 않습니다.";
+            String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+            String script = "<script>alert('" + alertMessage + "'); window.location.href='" + loginLink + "';</script>";
+            return ResponseEntity.ok().body(script);
         }
 
         // 새로운 비밀번호와 확인용 비밀번호가 일치하는지 확인
         if (!newPassword.equals(confirmNewPassword)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("New passwords do not match");
+            String alertMessage = "새로운 비밀번호가 일치하지 않습니다.";
+            String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+            String script = "<script>alert('" + alertMessage + "'); window.location.href='" + loginLink + "';</script>";
+            return ResponseEntity.ok().body(script);
         }
+
 
 //        // 새로운 비밀번호가 강도를 만족하는지 확인 (예시로 비밀번호 길이를 8자 이상으로 설정)
 //        if (newPassword.length() < 8) {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password must be at least 8 characters long");
 //        }
 
-        // 이전에 사용한 적 있는 비밀번호인지 확인 (비밀번호 변경 기록을 가지고 있을 경우 이를 활용)
+        // 이전 비밀번호와 새로운 비밀번호가 같은지 확인
+        if (passwordEncoder.matches(newPassword, user.getPreviousPassword())) {
+            String alertMessage = "새로운 비밀번호는 이전에 사용한 비밀번호와 같을 수 없습니다.";
+            String changePasswordLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+            String script = "<script>alert('" + alertMessage + "'); window.location.href='" + changePasswordLink + "';</script>";
+            return ResponseEntity.ok().body(script);
+        }
 
-        // 새로운 비밀번호 저장
+        // 비밀번호 변경 시점과 이전 비밀번호 업데이트
+        user.setPreviousPassword(user.getPassword());
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
+        String alertMessage = "비밀번호 변경이 완료되었습니다.";
         String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/login").toUriString();
-        String message = "Password changed successfully. Please <a href=\"" + loginLink + "\">click here</a> to login.";
-
-        return ResponseEntity.ok().body(message);
+        String script = "<script>alert('" + alertMessage + "'); window.location.href='" + loginLink + "';</script>";
+        return ResponseEntity.ok().body(script);
     }
 
 }

@@ -56,6 +56,8 @@ public class User{
     @Column(name = "CHG_DTTM")
     private Date modifiedDatetime;
 
+    @Column(name = "PREV_PW")
+    private String previousPassword;
 
     // 생성자, getter, setter 등 생략
 
