@@ -17,7 +17,7 @@ public class MenuController {
     @Autowired
     private MenuuMapper menuuMapper;
 
-    @GetMapping("/menus")
+    @GetMapping("/start")
     public String showMenuList(Model model, HttpSession session) {
         // 로그인한 사용자의 userId 가져오기
         User user = (User) session.getAttribute("user");
@@ -34,6 +34,6 @@ public class MenuController {
         List<MenuDto> menuList = menuuMapper.selectMenu(userId, compCd, sysCd);
 
         model.addAttribute("menuList", menuList);
-        return "menus";
+        return "start";
     }
 }

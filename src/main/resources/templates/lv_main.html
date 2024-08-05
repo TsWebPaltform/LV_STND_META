@@ -33,14 +33,23 @@
   document.writeln("<script type='text/javascript' src='" + script + "'><\/script>");
 </script>
 <script type="text/javascript">
+
+  var userId = "[[${session.user.userKey.empNo}]]";
+
   var ARCPLAN = ARCPLAN || {},
           version_argument = version_argument || "",
           startupScript;
 
   ARCPLAN.language = "server";
-  ARCPLAN.application = "DSF_EIS";
+  ARCPLAN.application = "EIS";
   ARCPLAN.startDocName = "00START.apd";
   ARCPLAN.arcCgiSite = "/Longview/10/Analytics/scripts/arcCGI10.exe";
+  ARCPLAN.hideContentWhileLoadingDocuments = false;
+  ARCPLAN.setUserParams = function (userParam) {
+
+    userParam.setParam(1, userId); // 사용자 번호 전달
+
+  }
 
   startupScript = "/Longview/10/Analytics/client/js/arcclientstartup.js?" + version_argument;
   document.writeln("<script type='text/javascript' src='" + startupScript + "'><\/script>");

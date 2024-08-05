@@ -1,17 +1,16 @@
 package com.example.LV_STND_META.controllers;
 
+import com.example.LV_STND_META.LongviewCyptoUtil;
 import com.example.LV_STND_META.UserLoginRequest;
 import com.example.LV_STND_META.dto.CommonDto;
 import com.example.LV_STND_META.entity.User;
 import com.example.LV_STND_META.entity.UserRole;
-import com.example.LV_STND_META.mappers.MenuMapper;
 import com.example.LV_STND_META.mappers.MyMapper;
 import com.example.LV_STND_META.repository.UserRepository;
 import com.example.LV_STND_META.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,13 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.security.DigestException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Controller
@@ -33,9 +38,6 @@ public class LoginController {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
-
-    @Autowired
-    private MenuMapper menuMapper;
 
     @Autowired
     private MyMapper myMapper; // My_Mapper Autowired
@@ -75,20 +77,30 @@ public class LoginController {
 
         User user = userRepository.findByUserKeyEmpNoAndUserKeyCompCd(empNo, compCd);
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+        if (user != null) {
+            try {
+                String decryptedPassword = LongviewCyptoUtil.decryptForArcplan("TripleDES", user.getPassword(), "My key");
 
-            // 로그인 성공
-            session.setAttribute("user", user);
-            session.setAttribute("compCd", compCd);
-            return ResponseEntity.ok().body("/success");
+                if (password.equals(decryptedPassword)) {
+                    // 로그인 성공
+                    session.setAttribute("user", user);
+                    session.setAttribute("compCd", compCd);
+                    return ResponseEntity.ok().body("/success");
+                } else {
+                    // 로그인 실패
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+                }
+            } catch (DigestException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException |
+                     NoSuchAlgorithmException |
+                     NoSuchPaddingException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+            }
         } else {
             // 로그인 실패
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
-
-
 
 
     @GetMapping("/success")
@@ -121,9 +133,11 @@ public class LoginController {
                                                             HttpSession session) {
 
         User user = (User) session.getAttribute("user");
+
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
         }
+
         String empNo = user.getUserKey().getEmpNo();
         String compCd = user.getUserKey().getCompCd();
 
@@ -133,47 +147,60 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
         }
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        try {
 
-        // 현재 비밀번호가 맞는지 확인
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            String alertMessage = "현재 비밀번호가 올바르지 않습니다.";
-            String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+            // 현재 비밀번호가 맞는지 확인
+            String decryptedCurrentPassword = LongviewCyptoUtil.decryptForArcplan("TripleDES", user.getPassword(), "My key");
+            if (!currentPassword.equals(decryptedCurrentPassword)) {
+                String alertMessage = "현재 비밀번호가 올바르지 않습니다.";
+                String changePasswordLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+                String script = "<script>alert('" + alertMessage + "'); window.location.href='" + changePasswordLink + "';</script>";
+                return ResponseEntity.ok().body(script);
+            }
+
+            // 새로운 비밀번호와 확인용 비밀번호가 일치하는지 확인
+            if (!newPassword.equals(confirmNewPassword)) {
+                String alertMessage = "새로운 비밀번호가 일치하지 않습니다.";
+                String changePasswordLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+                String script = "<script>alert('" + alertMessage + "'); window.location.href='" + changePasswordLink + "';</script>";
+                return ResponseEntity.ok().body(script);
+            }
+
+            // 이전 비밀번호와 새로운 비밀번호가 같은지 확인
+            String decryptedPreviousPassword = user.getPreviousPassword() != null ? LongviewCyptoUtil.decryptForArcplan("TripleDES", user.getPreviousPassword(), "My key") : null;
+            if (newPassword.equals(decryptedPreviousPassword) || newPassword.equals(decryptedCurrentPassword)) {
+                String alertMessage = "새로운 비밀번호는 이전에 사용한 비밀번호와 현재 비밀번호와 같을 수 없습니다.";
+                String changePasswordLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+                String script = "<script>alert('" + alertMessage + "'); window.location.href='" + changePasswordLink + "';</script>";
+                return ResponseEntity.ok().body(script);
+            }
+
+            if (!isStrongPassword(newPassword)) {
+                String alertMessage = "비밀번호는 8~16자의 영문 대소문자와 숫자, 특수문자를 사용할 수 있습니다.";
+                String changePasswordLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
+                String script = "<script>alert('" + alertMessage + "'); window.location.href='" + changePasswordLink + "';</script>";
+                return ResponseEntity.ok().body(script);
+            }
+
+            // 비밀번호 변경 시점과 이전 비밀번호 업데이트
+            user.setPreviousPassword(user.getPassword());
+            String encryptedNewPassword = LongviewCyptoUtil.encryptForArcplan("TripleDES", newPassword, "My key");
+            user.setPassword(encryptedNewPassword);
+            userRepository.save(user);
+
+            String alertMessage = "비밀번호 변경이 완료되었습니다.";
+            String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/login").toUriString();
             String script = "<script>alert('" + alertMessage + "'); window.location.href='" + loginLink + "';</script>";
             return ResponseEntity.ok().body(script);
+        } catch (DigestException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
+    }
 
-        // 새로운 비밀번호와 확인용 비밀번호가 일치하는지 확인
-        if (!newPassword.equals(confirmNewPassword)) {
-            String alertMessage = "새로운 비밀번호가 일치하지 않습니다.";
-            String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
-            String script = "<script>alert('" + alertMessage + "'); window.location.href='" + loginLink + "';</script>";
-            return ResponseEntity.ok().body(script);
-        }
+    private boolean isStrongPassword(String password) {
+        return password.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,16}$");
 
-
-//        // 새로운 비밀번호가 강도를 만족하는지 확인 (예시로 비밀번호 길이를 8자 이상으로 설정)
-//        if (newPassword.length() < 8) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password must be at least 8 characters long");
-//        }
-
-        // 이전 비밀번호와 새로운 비밀번호가 같은지 확인
-        if (passwordEncoder.matches(newPassword, user.getPreviousPassword())) {
-            String alertMessage = "새로운 비밀번호는 이전에 사용한 비밀번호와 같을 수 없습니다.";
-            String changePasswordLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/change-password").toUriString();
-            String script = "<script>alert('" + alertMessage + "'); window.location.href='" + changePasswordLink + "';</script>";
-            return ResponseEntity.ok().body(script);
-        }
-
-        // 비밀번호 변경 시점과 이전 비밀번호 업데이트
-        user.setPreviousPassword(user.getPassword());
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-
-        String alertMessage = "비밀번호 변경이 완료되었습니다.";
-        String loginLink = ServletUriComponentsBuilder.fromCurrentContextPath().path("/login").toUriString();
-        String script = "<script>alert('" + alertMessage + "'); window.location.href='" + loginLink + "';</script>";
-        return ResponseEntity.ok().body(script);
     }
 
 }

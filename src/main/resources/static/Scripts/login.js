@@ -23,7 +23,7 @@ $(document).ready(function() {
             data: JSON.stringify(requestData),
             success: function(response) {
                 // 로그인 성공 시 처리 로직
-                window.location.href = '/menus'; // 로그인 후 이동할 페이지
+                window.location.href = '/start'; // 로그인 후 이동할 페이지
             },
             error: function(xhr, status, error) {
                 // 로그인 실패 시 처리 로직

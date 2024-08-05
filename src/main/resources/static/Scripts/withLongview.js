@@ -37,7 +37,7 @@ const lv_action = {
     "MENU_OPEN": { //화면 오픈: ARCPLAN.arcclient.acSendInputEvent("COM_CMN1", 3, "화면명");
         "action": "INPUT",
         "pgm": "COM_CMN1",
-        "obj": 3
+        "obj": 2
     },
     "HOME": {//HOME: ARCPLAN.acSendClickEvent("COM_CMN1", 57, 1, 1);
         "action": "CLICK",

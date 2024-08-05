@@ -7,7 +7,7 @@
     $("#contents").append("<div id='" + OPTION.menu.left.id + "'></div>");
 
     $("body").append("<iframe id='lv_main' src='/lv_main'></iframe>");
-    $("body").append("<div id='overlay'></div>");
+    //$("body").append("<div id='overlay'></div>");
 
     // left menu 생성 후 감추기
     $("#" + OPTION.menu.left.id).css({ "left": $("#" + OPTION.menu.left.id).width() * -1 , "opacity": 0});
