@@ -42,7 +42,7 @@ public class LoginController {
     @Autowired
     private MyMapper myMapper; // My_Mapper Autowired
 
-    @GetMapping("/login")
+    @GetMapping("/")
     public String showLoginForm(Model model) {
 
         List<CommonDto> compList = myMapper.getCompList();
